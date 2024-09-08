@@ -1,0 +1,27 @@
+#number 1
+$preliminary = Get-Process | Where-Object { ($_.Name -ilike "C*") }
+$processed = $preliminary | Select ProcessName
+$processed | Out-String
+
+#number 2
+$allProcesses = Get-Process
+$preliminary = Get-Process | Where-Object { $_.ExecutiblePath -notmatch 'system32' }
+$processed = $preliminary | Select ProcessName
+$processed | Out-String
+
+#number 3
+$stoppedservices = Get-Service | Where-Object { $_.Status -eq 'Stopped' }
+$sorted = $stoppedservices | Sort-Object Name
+$filePath = "C:\Users\champuser\Documents\stopped_services.csv"
+$sorted | Select-Object Name, DisplayName, Status | Export-Csv -Path $filePath -NoTypeInformation
+Write-Host "Stopped Services list saved to $filePath"
+
+#number 4
+$chrome = "chrome"
+$chromecheck = Get-Process -Name chrome -ErrorAction SilentlyContinue
+if ($chromecheck)
+{
+Stop-Process -Name $chrome -Force
+}else{
+Start-Process "chrome.exe" "https://www.champlain.edu"
+}
