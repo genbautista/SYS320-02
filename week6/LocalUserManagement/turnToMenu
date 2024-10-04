@@ -1,0 +1,74 @@
+. (Join-Path $PSScriptRoot parsingapachelogs.ps1)
+. (Join-Path $PSScriptRoot Event-Logs.ps1)
+. (Join-Path $PSScriptRoot main-1.ps1)
+. (Join-Path $PSScriptRoot Users.ps1)
+. (Join-Path $PSScriptRoot processmanagement.ps1)
+
+$Prompt = "`n"
+$Prompt += "Please choose your operation:`n"
+$Prompt += "1 - Display last 10 Apache Logs`n"
+$Prompt += "2 - Display last 10 failed logins`n"
+$Prompt += "3 - List users at risk`n"
+$Prompt += "4 - Start chrome`n"
+$Prompt += "5 - Exit`n"
+
+$operation = $true
+
+while($operation){
+
+    Write-Host $Prompt | Out-String
+    $choice = Read-Host 
+
+if ($choice -notmatch "[0-5]"){
+Write-Host "Invalid number."
+continue
+}
+
+elseif($choice -eq 1){
+$logs = ApacheLogs1 | Select-Object -Last 10
+$logs = Format-Table -AutoSize
+}
+
+elseif($choice -eq 2){
+$failedLogins = getFailedLogins 10 | Select-Object -Last 10
+$failedLogins | Format-Table -AutoSize
+}
+
+elseif($choice -eq 3){
+
+        $days = Read-Host -Prompt "Please enter number of days to check failed login logs"
+
+        if(-not ($days -as [int])){
+        Write-Host "Please enter a valid number."
+        continue
+        }
+
+        $failLogins = getFailedLogins $days
+
+        $failedLoginCount = $failedLogins | Group-Object User | Where-Object { $_.Count -gt 10 }
+
+        if ($failedLoginCount.Count -eq 0) { 
+        Write-Host "No users found with more than 10 failed login attempts in the last $days days." 
+        } else { 
+        Write-Host "Users with more than 10 failed login attempts in the last $days days:"
+        $failedLoginCount | Select-Object Name, Count | Format-Table -AutoSize}
+}
+
+elseif($choice -eq 4){
+$chrome = "chrome"
+$chromecheck = Get-Process -Name chrome -ErrorAction SilentlyContinue
+if ($chromecheck)
+{
+Write-Host "Chrome is already running."
+}else{
+Start-Process "chrome.exe" "https://www.champlain.edu"
+Write-Host "Chrome started and navigating to champlain."
+}
+}
+
+elseif($choice -eq 5){
+        Write-Host "Goodbye"
+        exit
+        $operation = $false 
+}
+}
