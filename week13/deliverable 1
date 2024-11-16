@@ -1,0 +1,4 @@
+1. xmlstarlet format --html --recover 2>/dell/null
+This is used to format an HTML file in a readable and useful way. It also recovers from parsing issues regarding HTML. It can also suppress warning errors.
+2. xmlstarlet select --template --copy of
+The --copy of can create copies of the text document and output the <tr> elements. It is different than --value-of extracts only the text content of the selected elements.
